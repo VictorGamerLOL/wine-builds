@@ -106,12 +106,16 @@ jobs:
       - name: Recompress the contents of the .tar.zst
         run: |
           cd /tmp/wine-tkg
+
           # get the name of the tarball without its .pkg.tar.zst extension
           tarball=$(ls *.pkg.tar.zst | sed 's/.pkg.tar.zst//')
+
           # extract only the usr folder from the tarball
           tar -xf $tarball.pkg.tar.zst --wildcards --no-anchored 'usr/*'
+
           # rename usr directory to the name of the tarball
           mv usr $tarball
+
           # recompress the contents of the tarball, minus the original tarball
           tar -czf $tarball.tar.gz --exclude=$tarball.pkg.tar.zst *
       - name: Create tag
@@ -144,8 +148,9 @@ jobs:
         with:
           script: |
             const fs = require('fs')
-            // find the file in tmp, should be a .pkg.tar.zst
+            
             const files = fs.readdirSync('/tmp/wine-tkg')
+            
             const file = files.find(f => f.endsWith('.pkg.tar.zst'))
 
             const release = await github.rest.repos.createRelease({
@@ -166,7 +171,6 @@ jobs:
               data: fs.readFileSync(`/tmp/wine-tkg/${file}`)
             })
 
-            // another file, this time a .tar.gz
             const file2 = files.find(f => f.endsWith('.tar.gz'))
 
             await github.rest.repos.uploadReleaseAsset({
