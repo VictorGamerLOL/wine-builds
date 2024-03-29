@@ -47,7 +47,8 @@ jobs:
       - name: Fake build wine-tkg-git
         run: | 
           mkdir -p /tmp/wine-tkg
-          touch /tmp/wine-tkg/wine-tkg-git-0.0.0-0-x86_64.pkg.tar.zst
+          # 1 kb file of random junk named wine-tkg-git-0.0.0-1-x86_64.pkg.tar.zst
+          dd if=/dev/urandom of=/tmp/wine-tkg/wine-tkg-git-0.0.0-1-x86_64.pkg.tar.zst bs=1024 count=1
 
       # just in case
       - name: Archive artifacts
