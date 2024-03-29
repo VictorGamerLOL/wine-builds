@@ -50,7 +50,7 @@ jobs:
 
       # just in case
       - name: Archive artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wine-tkg
           path: /tmp/wine-tkg
@@ -64,6 +64,7 @@ jobs:
               repo: context.repo.repo,
               per_page: 1
             })
+            console.log(commits)
             const latest_commit = commits[0]
             github.rest.git.createTag({
               owner: context.repo.owner,
