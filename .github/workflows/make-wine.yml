@@ -168,3 +168,14 @@ jobs:
               data: fs.readFileSync(`/tmp/wine-tkg/${file}`)
             })
 
+            // another file, this time a .tar.gz
+            const file2 = files.find(f => f.endsWith('.tar.gz'))
+
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.data.id,
+              name: file2,
+              data: fs.readFileSync(`/tmp/wine-tkg/${file2}`)
+            })
+
