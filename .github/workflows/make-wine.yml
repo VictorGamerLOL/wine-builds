@@ -43,6 +43,13 @@ jobs:
           chown user -R . && cd wine-tkg-git/wine-tkg-git
           su user -c "yes | PKGDEST=/tmp/wine-tkg makepkg --noconfirm -s"
 
+      # just in case
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: wine-tkg
+          path: /tmp/wine-tkg
+
       - name: Release wine-tkg
         uses: softprops/action-gh-release@v2
         with:
