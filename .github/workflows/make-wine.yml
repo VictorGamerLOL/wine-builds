@@ -110,10 +110,8 @@ jobs:
           tarball=$(ls *.pkg.tar.zst | sed 's/.pkg.tar.zst//')
           # extract only the usr folder from the tarball
           tar -xf $tarball.pkg.tar.zst --wildcards --no-anchored 'usr/*'
-          # move everything from usr to the root of the current directory
-          mv usr/* .
-          # delete the empty user
-          rmdir usr
+          # rename usr directory to the name of the tarball
+          mv usr $tarball
           # recompress the contents of the tarball, minus the original tarball
           tar -czf $tarball.tar.gz --exclude=$tarball.pkg.tar.zst *
       - name: Create tag
