@@ -106,6 +106,6 @@ jobs:
               repo: context.repo.repo,
               release_id: release.data.id,
               name: file,
-              data: fs.readFileSync(`/tmp/${file}`)
+              data: fs.readFileSync(`/tmp/wine-tkg/${file}`)
             })
 
