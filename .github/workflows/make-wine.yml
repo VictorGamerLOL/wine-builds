@@ -50,8 +50,54 @@ jobs:
           name: wine-tkg
           path: /tmp/wine-tkg
 
-      - name: Release wine-tkg
-        uses: softprops/action-gh-release@v2
+      - name: Create tag
+        uses: actions/github-script@v7
         with:
-          files: |
-            /tmp/wine-tkg/*.pkg.tar.zst
+          script: |
+            const { data: [latest_commit] } = await github.git.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 1
+            })
+            github.git.createTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: '${{ github.event.inputs.staging_tag }}',
+              message: 'Release v${{ github.event.inputs.staging_tag }}',
+              object: latest_commit.sha,
+              type: 'commit'
+            })
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${{ github.event.inputs.staging_tag }}`,
+              sha: latest_commit.sha
+            })
+        
+      - name: Create release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            // find the file in tmp, should be a .pkg.tar.zst
+            const files = fs.readdirSync('/tmp')
+            const file = files.find(f => f.endsWith('.pkg.tar.zst'))
+
+            const release = await github.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: '${{ github.event.inputs.staging_tag }}',
+              name: 'Release v${{ github.event.inputs.staging_tag }}',
+              body: 'Release of wine-tkg-git',
+              draft: false,
+              prerelease: false
+            })
+
+            await github.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.data.id,
+              name: file,
+              data: fs.readFileSync(`/tmp/${file}`)
+            })
+
