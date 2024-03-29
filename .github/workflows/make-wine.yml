@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      staging_tag:
+        description: 'Tag to build. vX.Y'
+        required: true
+        # no default
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Setup arch container.
+        run: |
+          echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+          pacman -Syyu --noconfirm base-devel git sudo
+          useradd user -G wheel && echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout this repo.
+        uses: actions/checkout@v4
+
+      # Runs a single command using the runners shell
+      - name: Clone wine-tkg-git
+        run: git clone https://github.com/Frogging-Family/wine-tkg-git.git
+
+      - name: Mod customization.cfg
+        run: ./custom-cfg-writer.sh ${{ github.event.inputs.staging_tag }}
+      
+      - name: Build wine-tkg-git
+        run: |
+          chown user -R . && cd wine-tkg-git/wine-tkg-git
+          su user -c "yes | PKGDEST=/tmp/wine-tkg makepkg --noconfirm -s"
+
+      - name: Release wine-tkg
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            /tmp/wine-tkg/*.pkg.tar.zst
