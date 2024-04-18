@@ -36,65 +36,65 @@ jobs:
       - name: Mod customization.cfg
         run: ./custom-cfg-writer.sh ${{ github.event.inputs.staging_tag }}
       
-      # - name: Build wine-tkg-git
-      #   run: |
-      #     # We need our user to own everything to interact with it duh.
-      #     chown user -R . && cd wine-tkg-git/wine-tkg-git
+      - name: Build wine-tkg-git
+        run: |
+          # We need our user to own everything to interact with it duh.
+          chown user -R . && cd wine-tkg-git/wine-tkg-git
 
-      #     # Build the thing as the user, output the result to /tmp
-      #     su user -c "yes | PKGDEST=/tmp/wine-tkg makepkg --noconfirm -s"
+          # Build the thing as the user, output the result to /tmp
+          su user -c "yes | PKGDEST=/tmp/wine-tkg makepkg --noconfirm -s"
       
-      # I am using this for debugging purposes, to see if the action is successful
-      - name: Fake build wine-tkg-git
-        run: | 
-          mkdir -p /tmp/wine-tkg
-          # reconstruct what an average wine arch package would look like, but in each directory there is a file with 1kb of nonsense. It should end up like
-          # .
-          # ├── .BUILDINFO
-          # ├── .INSTALL
-          # ├── .MTREE
-          # ├── .PKGINFO
-          # └── usr
-          #     ├── bin
-          #     ├── include
-          #     ├── lib
-          #     ├── lib32
-          #     ├── share
-          #     └── src
+      # # I am using this for debugging purposes, to see if the action is successful
+      # - name: Fake build wine-tkg-git
+      #   run: | 
+      #     mkdir -p /tmp/wine-tkg
+      #     # reconstruct what an average wine arch package would look like, but in each directory there is a file with 1kb of nonsense. It should end up like
+      #     # .
+      #     # ├── .BUILDINFO
+      #     # ├── .INSTALL
+      #     # ├── .MTREE
+      #     # ├── .PKGINFO
+      #     # └── usr
+      #     #     ├── bin
+      #     #     ├── include
+      #     #     ├── lib
+      #     #     ├── lib32
+      #     #     ├── share
+      #     #     └── src
 
-          # 894 byte .INSTALL
-          dd if=/dev/urandom of=/tmp/wine-tkg/.INSTALL bs=1 count=894
+      #     # 894 byte .INSTALL
+      #     dd if=/dev/urandom of=/tmp/wine-tkg/.INSTALL bs=1 count=894
 
-          # 199.9 kib .MTREE
-          dd if=/dev/urandom of=/tmp/wine-tkg/.MTREE bs=1 count=204799
+      #     # 199.9 kib .MTREE
+      #     dd if=/dev/urandom of=/tmp/wine-tkg/.MTREE bs=1 count=204799
 
-          # 4.9 kib .PKGINFO
-          dd if=/dev/urandom of=/tmp/wine-tkg/.PKGINFO bs=1 count=5119
+      #     # 4.9 kib .PKGINFO
+      #     dd if=/dev/urandom of=/tmp/wine-tkg/.PKGINFO bs=1 count=5119
 
-          # 18.1 kib .BUILDINFO
-          dd if=/dev/urandom of=/tmp/wine-tkg/.BUILDINFO bs=1 count=18559
+      #     # 18.1 kib .BUILDINFO
+      #     dd if=/dev/urandom of=/tmp/wine-tkg/.BUILDINFO bs=1 count=18559
 
-          # a usr directory
-          mkdir /tmp/wine-tkg/usr
+      #     # a usr directory
+      #     mkdir /tmp/wine-tkg/usr
 
-          cd /tmp/wine-tkg/usr
+      #     cd /tmp/wine-tkg/usr
 
-          # all the other directories
-          mkdir bin include lib lib32 share src
+      #     # all the other directories
+      #     mkdir bin include lib lib32 share src
 
-          # 1kb of nonsense in each directory
-          dd if=/dev/urandom of=bin/nonsense bs=1 count=1024
-          dd if=/dev/urandom of=include/nonsense bs=1 count=1024
-          dd if=/dev/urandom of=lib/nonsense bs=1 count=1024
-          dd if=/dev/urandom of=lib32/nonsense bs=1 count=1024
-          dd if=/dev/urandom of=share/nonsense bs=1 count=1024
-          dd if=/dev/urandom of=src/nonsense bs=1 count=1024
+      #     # 1kb of nonsense in each directory
+      #     dd if=/dev/urandom of=bin/nonsense bs=1 count=1024
+      #     dd if=/dev/urandom of=include/nonsense bs=1 count=1024
+      #     dd if=/dev/urandom of=lib/nonsense bs=1 count=1024
+      #     dd if=/dev/urandom of=lib32/nonsense bs=1 count=1024
+      #     dd if=/dev/urandom of=share/nonsense bs=1 count=1024
+      #     dd if=/dev/urandom of=src/nonsense bs=1 count=1024
 
-          # go back to the root of the directory
-          cd /tmp/wine-tkg
+      #     # go back to the root of the directory
+      #     cd /tmp/wine-tkg
 
-          # create a tarball of the contents of the directory, hidden files included
-          tar --zstd -cf wine-tkg-0.0.r0.000000000-000.pkg.tar.zst * .* 
+      #     # create a tarball of the contents of the directory, hidden files included
+      #     tar --zstd -cf wine-tkg-0.0.r0.000000000-000.pkg.tar.zst * .* 
 
       # just in case
       - name: Archive artifacts
